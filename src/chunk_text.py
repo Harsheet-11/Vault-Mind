@@ -2,6 +2,7 @@ from typing import List, Optional
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import sys
 from pathlib import Path
+import tiktoken
 
 sys.path.append(str(Path(__file__).parent.parent))
 from config.settings import CHUNK_SIZE, CHUNK_OVERLAP
@@ -12,11 +13,12 @@ class DocumentChunker:
     def __init__(self, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self.encoder = tiktoken.get_encoding("cl100k_base")
 
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            length_function=len,
+            length_function=lambda text:len(self.encoder.encode(text)),
             separators=["\n\n", "\n", ". ", " ", ""]
         )
 
